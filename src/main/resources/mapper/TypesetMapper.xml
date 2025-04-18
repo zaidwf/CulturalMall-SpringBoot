@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.TypesetMapper">
+
+    <resultMap id="TypesetMap" type="com.example.entity.Typeset">
+        <id property="id" column="id"></id>
+        <result property="name" column="name"></result>
+        <result property="description" column="description"></result>
+        <!-- 存储与Icon对象相关联的多个Category对象,column属性指定了用于查询的外键列,这里是Typeset表的id列-->
+        <collection property="types" column="id" select="selectTypes"></collection>
+    </resultMap>
+
+    <select id="selectTypes" resultType="com.example.entity.Type">
+        SELECT type.*,typeset.name as typesetName
+        FROM type LEFT JOIN typeset
+            ON type.typeset_id = typeset.id
+        <!--查询条件，用于选择与特定Typeset实体的ID相关联的类型。-->
+        WHERE type.typeset_id = #{id}
+    </select>
+
+    <select id="getTypesetMapList" resultMap="TypesetMap">
+        select * from typeset
+        WHERE typeset.deleted = 0
+    </select>
+
+    <delete id="deleteById">
+        update typeset
+        set deleted = 1
+        where id = #{id} and deleted = 0
+    </delete>
+
+    <insert id="insert" parameterType="com.example.entity.Typeset" useGeneratedKeys="true">
+        insert into typeset
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="description != null">description,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="description != null">#{description},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.example.entity.Typeset">
+        update typeset
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

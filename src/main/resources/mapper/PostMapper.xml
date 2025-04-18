@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.PostMapper">
+    <resultMap id="PostMap" type="com.example.entity.Post">
+        <id property="id" column="id"></id>
+        <result property="title" column="title"></result>
+        <result property="content" column="content"></result>
+        <result property="user_id" column="userId"></result>
+        <result property="topic_id" column="topicId"></result>
+        <result property="created_at" column="createdAt"></result>
+        <!-- 存储postid对应的User对象；property指定结果对象中要填充的属性名；select:指定一个查询的ID，该查询返回与 <association> 关联的对象-->
+        <association property="user" column="id" select="selectUser"></association>
+    </resultMap>
+
+    <select id="selectUser" resultType="com.example.entity.User">
+        SELECT user.*
+        FROM user LEFT JOIN post
+        ON user.id = post.user_id
+        <!--查询条件，用于选择与特定Typeset实体的ID相关联的类型。-->
+        WHERE post.id = #{id}
+    </select>
+
+    <select id="selectByTopicId" resultMap="PostMap">
+        select *
+        from post
+        where post.topic_id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.example.entity.Post" useGeneratedKeys="true">
+        insert into post
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="title != null">title,</if>
+            <if test="content != null">content,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="topicId != null">topic_id,</if>
+            <if test="createdAt != null">created_at,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="title != null">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="topicId != null">#{topicId},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.example.entity.Post">
+        update post
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="topicId != null">
+                topic_id = #{topicId},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from post
+        where id = #{id}
+    </delete>
+
+</mapper>

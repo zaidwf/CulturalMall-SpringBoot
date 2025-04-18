@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.CarouselMapper">
+
+    <sql id="Base_Column_List">
+        id,goods_id,show_order,goods_name,img
+    </sql>
+
+    <select id="selectAll" resultType="com.example.entity.Carousel">
+        select carousel.id as id,
+               carousel.goods_id as goodsId,
+               carousel.show_order as showOrder,
+               goods.name as goodsName,
+               goods.img as img
+        from carousel,goods
+        where goods.id = carousel.goods_id
+        order by show_order
+        asc
+    </select>
+
+    <delete id="deleteById">
+        delete from carousel
+        where id = #{id}
+    </delete>
+    <!--MyBatis的<trim>标签用于在执行插入或更新操作时，
+    自动地在SQL语句的前后添加一些固定的内容（如圆括号），
+    并且能够智能地处理尾部的逗号
+    第一个使用<trim>标签构造列名部分，条件性地添加列名
+    第二个<trim>标签构造对应的值部分，同样条件性地添加属性值
+    -->
+    <insert id="insert" parameterType="com.example.entity.Carousel" useGeneratedKeys="true">
+        insert into carousel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="goodsId != null">goods_id,</if>
+            <if test="showOrder != null">show_order,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="goodsId != null">#{goodsId},</if>
+            <if test="showOrder != null">#{showOrder},</if>
+        </trim>
+    </insert>
+</mapper>

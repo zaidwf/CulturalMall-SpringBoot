@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.ThemeMapper">
+    <resultMap id="ThemeMap" type="com.example.entity.Theme">
+        <id property="id" column="id"></id>
+        <result property="name" column="name"></result>
+        <result property="img" column="img"></result>
+        <result property="description" column="description"></result>
+        <!-- 存储与Theme对象相关联的多个Goods对象,column属性指定了用于查询的外键列,这里是Theme表的id列-->
+        <collection property="goods" column="id" select="selectGoods"></collection>
+    </resultMap>
+
+    <select id="selectGoods" resultType="com.example.entity.Goods">
+        SELECT goods.*
+        FROM themegoods LEFT JOIN goods
+        ON themegoods.goods_id = goods.id
+        <!--查询条件，用于选择与特定Typeset实体的ID相关联的类型。-->
+        WHERE themegoods.theme_id = #{id}
+    </select>
+
+    <select id="getThemeMapList" resultMap="ThemeMap">
+        select * from theme
+    </select>
+
+    <select id="selectById" resultMap="ThemeMap">
+        select *
+        from theme
+        where theme.id = #{id}
+    </select>
+
+    <select id="selectAll" resultType="com.example.entity.Theme">
+        select * from theme
+    </select>
+
+    <delete id="deleteById">
+        delete from theme
+        where id = #{id}
+    </delete>
+
+    <update id="updateById" parameterType="com.example.entity.Theme">
+        update theme
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="img != null">
+                img = #{img},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <insert id="insert" parameterType="com.example.entity.Theme" useGeneratedKeys="true">
+        insert into theme
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="img != null">img,</if>
+            <if test="description != null">description,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="img != null">#{img},</if>
+            <if test="description != null">#{description},</if>
+        </trim>
+    </insert>
+</mapper>
